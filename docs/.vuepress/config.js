@@ -4,14 +4,13 @@ module.exports = {
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
    */
-  title: 'Vuepress Docs Boilerplate',
+  title: 'RoundRadio RF IoT Project Documentation',
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#description
    */
   description: description,
 
-  base: '/roundradio-iot/',
-
+  base: '/roundradio-rf-iot/',
 
   /**
    * Theme configuration, here is the default theme configuration for VuePress.
@@ -20,10 +19,11 @@ module.exports = {
    */
 
   themeConfig: {
-    sidebarDepth: 3,
+    sidebarDepth: 5,
     sidebar: [
       '/',
-      '/introduction/'
+      '/hw-design/',
+      '/sw-design/'
     ]
   },
   markdown: {
