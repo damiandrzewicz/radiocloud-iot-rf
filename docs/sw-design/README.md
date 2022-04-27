@@ -2,6 +2,16 @@
 
 sdsdvsdv
 
-## some design text
+## Messaging Library
 
-dfbdfb
+### Message Interface
+
+@startuml 
+
+interface IMessage
+{
+    + {abstract} bool parse(bool verify = true)
+    + {abstract} bool build()
+}
+
+@enduml
