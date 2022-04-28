@@ -4,29 +4,16 @@ sdsdvsdv
 
 ## Messaging API
 
-### Basic Message Exchange
-
-Sequence diagram of basic message exchange is presented below. That's very common case when `requester` sends `request` to the `receiver`. If message was processed successfully on `receiver` side, then sends successfull information. In other case notification about failure cause is passed.
-
-@startuml 
-activate Requester
-
-Requester -> Receiver : request
-activate Receiver
-
-Receiver -> Receiver : process
-
-alt successful case
-    Receiver -> Requester : success information
-else some kind of failure
-    Receiver -> Requester : failure information
-end
-@enduml
-
-#### Base Message Format
+### Base Message Format
 
 ```xml
-<opening_char><arg_1><delim><arg_2><delim><arg_n><closing_char>
+<opening_char>
+    <arg_1>
+    <delim>
+    <arg_2>
+    <delim>
+    <arg_n>
+<closing_char>
 ```
 
 Where:
@@ -38,7 +25,10 @@ Where:
 Going further, message is grouped in following way:
 
 ```xml
-<opening_char><required_args><optional_args><closing_char>
+<opening_char>
+    <required_args>
+    <optional_args>
+<closing_char>
 ```
 
 Where:
@@ -51,19 +41,145 @@ Where:
 - `<optional_args>` - mostly additional informations. Existende depends on particular message type.
 
 
-#### Message Request
+### Message Request
 
 `Request` is formatted in following way:
 
 ```xml
-<opening_char><message_direction><delimeter><message_type><...additional_arguments...><closing_char>
+<opening_char>
+    <message_direction>
+    <delimeter>
+    <message_class>
+    <delimeter>
+    <...additional_arguments...>
+<closing_char>
 ```
+
+`additional_arguments` depends on `message_class`.
+
+#### Message Request Without Arguments
 
 For example, very basic request:
 
 ```xml
 (1|4)
 ```
+
+Where:
+- `<opening_char>` = `(`,
+- `<message_direction>` = 1 (request),
+- `<message_class>` = 5 (defined meanings HERE),
+- `<closing_char>` = `)`,
+- `delimeter` = `|`
+
+#### Message Request With Arguments
+
+Little bit advanced example of request:
+
+```xml
+(1|4|1,23|100|test)
+```
+
+Where:
+- `<opening_char>` = `(`,
+- `<message_direction>` = 1 (request),
+- `<message_class>` = 4 (defined meanings HERE),
+- `1,23|100|test` = arguments depending on `<message_class>`
+- `<closing_char>` = `)`,
+- `delimeter` = `|`
+
+### Message Response
+
+`Request` is formatted in following way:
+
+```xml
+<opening_char>
+    <message_direction>
+    <delimeter>
+    <message_class>
+    <delimeter>
+    <status_args>
+    <...additional_arguments...>
+<closing_char>
+```
+
+Parameters mostly are the same like in `request`, but the only one difference is `<status_args>`, which is described in sections below.
+`<status_args>` is created out of 2 subarguments:
+- `<result>` - following values are allowed:
+    - `1` - successfull result,
+    - `0` - error result.
+- `<error_description>
+
+#### Successfull Message Response Without Parameters
+
+When `request` was processed without errors, then `<status_args>` has 2 possible values: `0` when failed and `1` when success. For example:
+
+```xml
+(2|4|1)
+```
+
+#### Successfull Message Response With Parameters
+
+```xml
+(2|4|1|test|123,456|555|someData)
+```
+
+#### Error Message Response Without Parameters
+
+That's the case when arguments are not available, because message was failed:
+
+```xml
+(2|4|0|)
+```
+
+### State Message Exchange
+
+Sequence diagram of basic message exchange is presented below. That's very common case when `node` sends `request` to the `receiver`. If message was processed successfully on `gateway` side, then sends successfull information. In other case notification about failure cause is passed.
+
+@startuml 
+activate Node
+
+Node -> Gateway : request
+activate Gateway
+
+Gateway -> Gateway : process
+
+alt successful case
+    Gateway -> Node : success information
+else some kind of failure
+    Gateway -> Node : failure information
+end
+@enduml
+
+### Action Message Exchange
+
+`Actions` are special messages exchanged between `node` and `gateway`. `node` pings `gateway` for actions to perform. There are following messages allowed:
+- `configuration` - `gateway` sends configuration to the `node`,
+- `update` - update firmware is triggered,
+- `command` - `gateway` sends command to `node`, then node performs some action depending on received `command`.
+
+Waiting for data from `gateway` is activated every time when `node` finished sending data to `gateway`. It is important that only `node` can initiate `action` message exchange. General message exchange sequence is following:
+
+@startuml 
+activate Node
+
+Node -> Gateway : check
+
+loop until gaateway-node exchange timeout || data received
+    Gateway -> Node : request
+end
+
+alt received data
+    Node -> Node : process
+
+    alt successful case
+        Node -> Gateway : success information
+    else some kind of failure
+        Node -> Gateway : failure information
+    end
+end
+
+@enduml
 
 ## Messaging Library
 
