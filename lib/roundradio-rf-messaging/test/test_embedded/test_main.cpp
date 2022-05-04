@@ -1,13 +1,9 @@
 #include <unity.h>
-#include "../test_modules/test_MessageBuffer.hpp"
 
 void process() {
     UNITY_BEGIN();
-    test_MessageBuffer::process();
     UNITY_END();
 }
-
-#ifdef ARDUINO
 
 #include <Arduino.h>
 void setup() {
@@ -24,12 +20,3 @@ void loop() {
     digitalWrite(13, LOW);
     delay(500);
 }
-
-#else
-
-int main(int argc, char **argv) {
-    process();
-    return 0;
-}
-
-#endif
