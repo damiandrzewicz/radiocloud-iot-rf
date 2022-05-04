@@ -27,6 +27,11 @@ public:
         return std::strlen(buffer_);
     }
 
+    bool isFilled()
+    {
+        return length();
+    }
+
 private:
     
     char buffer_[MaxSize];
