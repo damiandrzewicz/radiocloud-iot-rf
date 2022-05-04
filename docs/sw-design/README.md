@@ -1,5 +1,24 @@
 # Software Design
 
+## System Context
+
+@startuml C4_Elements
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+System_Boundary(radiocloud_iot_rf_boundary, "RadioCloud IoT RF System") {
+    Container(radiocloud_iot_rf_node, "Generic RadioCloud IoT Node", "C, C++, Arduino, RFM69HCW", "Stores data from peripherial subcomponents and sends it periodically or as an event to the Gateway")
+
+    Container(radiocloud_iot_rf_gateway, "RadioCloud IoT RF Gateway", "C++, Arduino, ESP32, RFM69HCW", "Collects data from Nodes, handles pairing, registration, authentication and forwards them to aggregation containers")
+}
+
+System_Boundary(radiocloud_assistant_boundary, "RadioCloud IoT Assistant System") {
+    
+}
+
+Rel(radiocloud_iot_rf_node, radiocloud_iot_rf_gateway, "Exchange Data", "RF Modulation (868MHz)")
+
+@enduml
+
 sdsdvsdv
 
 ## Message Exchange
