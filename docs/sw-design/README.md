@@ -2,6 +2,42 @@
 
 sdsdvsdv
 
+## Message Exchange
+
+Sequence diagram of basic message exchange is presented below. That's very common case when `node` sends `request` to the `receiver`. If message was processed successfully on `gateway` side, then sends successfull information. In other case notification about failure cause is passed.
+
+@startuml 
+activate Node
+
+Node -> Gateway : request (msg-type)
+activate Gateway
+
+Gateway -> Gateway : process
+
+alt successful case
+    Gateway -> Node : success information
+else some kind of failure
+    Gateway -> Node : failure information
+end
+@enduml
+
+Different message types (`msg-type`) are presented below:
+
+### States
+
+`State` is basic message which is send from `node` to the `gateway`. There are following kinds of messages:
+- `BatteryState` - information about battery percentage value. This information is updated every `<batt-state-msg-period>` [h] hours value.
+- `NodeState` - basic information about node's peripherials, e.g.: information from sensors. Period of sending particular `NodeState` is configured by `<node-state-msg-period>` [s] seconds.
+
+### Actions
+
+`Actions` are special messages exchanged between `node` and `gateway`. In general case `node` ashs `gateway` for some data. There are following messages allowed:
+- `configuration` - `gateway` sends configuration to the `node`,
+- `update` - update firmware is triggered,
+- `event` - `gateway` sends `event` to `node`, then node performs some action depending on received `event`. This kind of action is mostly triggered when external inperrupt is called. Configuration `<min-event-msg-period>` [s] must be configured.
+
+Waiting for `configuration` from `gateway` is activated every time when `node` finished sending data to `gateway`. It is important that only `node` can initiate `action` message exchange. 
+
 ## Messaging API
 
 ### Base Message Format
@@ -131,55 +167,6 @@ That's the case when arguments are not available, because message was failed:
 ```xml
 (2|4|0|)
 ```
-
-### State Message Exchange
-
-Sequence diagram of basic message exchange is presented below. That's very common case when `node` sends `request` to the `receiver`. If message was processed successfully on `gateway` side, then sends successfull information. In other case notification about failure cause is passed.
-
-@startuml 
-activate Node
-
-Node -> Gateway : request
-activate Gateway
-
-Gateway -> Gateway : process
-
-alt successful case
-    Gateway -> Node : success information
-else some kind of failure
-    Gateway -> Node : failure information
-end
-@enduml
-
-### Action Message Exchange
-
-`Actions` are special messages exchanged between `node` and `gateway`. `node` pings `gateway` for actions to perform. There are following messages allowed:
-- `configuration` - `gateway` sends configuration to the `node`,
-- `update` - update firmware is triggered,
-- `command` - `gateway` sends command to `node`, then node performs some action depending on received `command`.
-
-Waiting for data from `gateway` is activated every time when `node` finished sending data to `gateway`. It is important that only `node` can initiate `action` message exchange. General message exchange sequence is following:
-
-@startuml 
-activate Node
-
-Node -> Gateway : check
-
-loop until gaateway-node exchange timeout || data received
-    Gateway -> Node : request
-end
-
-alt received data
-    Node -> Node : process
-
-    alt successful case
-        Node -> Gateway : success information
-    else some kind of failure
-        Node -> Gateway : failure information
-    end
-end
-
-@enduml
 
 ## Messaging Library
 
