@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
-
 template<class T>
 class MessageModel
 {
@@ -10,8 +8,8 @@ public:
 
     T &model(){ return model_; }
 
-    virtual bool parseModel() = 0;
-    virtual bool buildModel() = 0;
+    virtual bool parse() = 0;
+    virtual bool build() = 0;
 
 private:
     T model_;
