@@ -1,21 +1,47 @@
 # Software Design
 
-## System Context
+## System 
+
+### Context
 
 @startuml C4_Elements
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-System_Boundary(radiocloud_iot_rf_boundary, "RadioCloud IoT RF System") {
-    Container(radiocloud_iot_rf_node, "Generic RadioCloud IoT Node", "C, C++, Arduino, RFM69HCW", "Stores data from peripherial subcomponents and sends it periodically or as an event to the Gateway")
+Person(customer, "Smart Home Customer", "A customer of the Smart Home System")
+System(radiocloud_iot_system, "RadioCloud IoT System", "some description")
 
-    Container(radiocloud_iot_rf_gateway, "RadioCloud IoT RF Gateway", "C++, Arduino, ESP32, RFM69HCW", "Collects data from Nodes, handles pairing, registration, authentication and forwards them to aggregation containers")
+System_Ext(home_assistant, "Home Assistant", "HA")
+
+Rel(customer, radiocloud_iot_system, "Uses")
+Rel(customer, home_assistant, "Uses")
+Rel_Neighbor(radiocloud_iot_system, home_assistant, "Exchanges Data", "REST API")
+
+@enduml
+
+### Container
+
+@startuml C4_Elements
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(customer, "Smart Home Customer", "A customer of the Smart Home System")
+
+System_Ext(home_assistant, "Home Assistant", "HA")
+
+System_Boundary(radiocloud_iot_boundary, "RadioCloud IoT System") {
+    Container(radiocloud_iot_rf_node, "Generic IoT RF Node", "C, C++, Arduino, RFM69HCW", "Stores data from peripherial subcomponents and sends it periodically or as an event to the Gateway")
+
+    Container(radiocloud_iot_rf_gateway, "IoT RF Gateway", "C++, Arduino, ESP32, RFM69HCW", "Collects data from Nodes, handles pairing, registration, authentication and forwards them to aggregation containers")
+
+    Container(radiocloud_iot_api_app, "IoT API Application", "Java, Spring, Docker Container", "asd")
 }
 
-System_Boundary(radiocloud_assistant_boundary, "RadioCloud IoT Assistant System") {
-    
-}
 
 Rel(radiocloud_iot_rf_node, radiocloud_iot_rf_gateway, "Exchange Data", "RF Modulation (868MHz)")
+Rel(radiocloud_iot_rf_gateway, radiocloud_iot_api_app, "RS232", "some description")
+
+Rel(customer, radiocloud_iot_api_app, "Uses")
+Rel(customer, home_assistant, "Uses")
+Rel_Neighbor(radiocloud_iot_api_app, home_assistant, "Exchanges Data", "REST API")
 
 @enduml
 
@@ -50,12 +76,12 @@ Different message types (`msg-type`) are presented below:
 
 ### Actions
 
-`Actions` are special messages exchanged between `node` and `gateway`. In general case `node` ashs `gateway` for some data. There are following messages allowed:
+`Actions` are special messages exchanged between `node` and `gateway`. In general case `node` asks `gateway` for some data. There are following messages allowed:
 - `configuration` - `gateway` sends configuration to the `node`,
 - `update` - update firmware is triggered,
-- `event` - `gateway` sends `event` to `node`, then node performs some action depending on received `event`. This kind of action is mostly triggered when external inperrupt is called. Configuration `<min-event-msg-period>` [s] must be configured.
+- `event` - `node` sends `event` to `gateway`, then `gateway` performs some action depending on received `event`. This kind of action is mostly triggered when external inperrupt is called. Configuration `<min-event-msg-period>` [s] must be configured.
 
-Waiting for `configuration` from `gateway` is activated every time when `node` finished sending data to `gateway`. It is important that only `node` can initiate `action` message exchange. 
+Asking `gateway` for `configuration` is activated every time when `node` finished sending `state` to `gateway`. It is important that only `node` can initiate `action` message exchange. 
 
 ## Messaging API
 
