@@ -68,6 +68,37 @@ end
 
 Different message types (`msg-type`) are presented below:
 
+- `Pair` - value 1 - message send from `node` to `gateway` which is requesting `nodeId` value assigned by `gateway`. This message is result of `PairingSequence`:
+
+@startuml 
+activate Node
+
+Node -> Node : button press (>3s)
+
+Node -> Gateway : `pair` request: (1|1)
+activate Gateway
+
+Gateway -> Gateway : process
+
+alt successful case
+    Gateway -> Node : success: (1|2|1|<radioSetup>)
+else some kind of failure
+    Gateway -> Node : failure: (1|2|0|<errMsg>)
+end
+@enduml
+
+Where `radioSetup` consists of:
+- `networkId`,
+- `gatewayId`,
+- `customFrequency`,
+- `encryptKey`,
+- `rssi`
+
+These information are important to setup encrypted radio connection between `node` and `gateway`.
+
+
+- `Register` - as soon as node is paired, then message with `node`'s `uniqueId` is send
+
 ### States
 
 `State` is basic message which is send from `node` to the `gateway`. There are following kinds of messages:
