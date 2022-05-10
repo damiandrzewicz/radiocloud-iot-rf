@@ -15,21 +15,26 @@ public:
         if(res != RadioMessageResult::OK){ return res; }
 
         res = checkResult(reinterpret_cast<RadioMessageResponseModel&>(radioMessageModel));
+        if(res != RadioMessageResult::OK){ return res; }
+
+        return RadioMessageResult::OK;
     }
 
     virtual int build(RadioMessageModel &radioMessageModel) override
     {
-        
+        auto res = RadioMessage::build(radioMessageModel);
+        if(res != RadioMessageResult::OK){ return res; }
 
-        return RadioMessageResult::ERROR;
+        res = buildResult(reinterpret_cast<RadioMessageResponseModel&>(radioMessageModel));
+        if(res != RadioMessageResult::OK){ return res; }
+
+        return RadioMessageResult::OK;
     }
 
 protected:
     int checkResult(RadioMessageResponseModel &radioMessageResponseModel)
     {
-        auto delim = messageBuffer_.getDelimeter();
-
-        auto sResult = strtok(NULL, delim);
+        auto sResult = strtok(NULL, messageBuffer_.getDelimeter());
         if(!sResult){ return RadioMessageResult::P_MISSING_RESULT; }
 
         radioMessageResponseModel.result = static_cast<RadioMessageResponseModel::Result>(atoi(sResult));
@@ -37,6 +42,13 @@ protected:
         return RadioMessageResult::OK;
     }
 
+    int buildResult(RadioMessageResponseModel &radioMessageResponseModel)
+    {
+        messageBuffer_.appendDelimeter();
+        messageBuffer_.appendLong(static_cast<long>(radioMessageResponseModel.result));
+
+        return RadioMessageResult::OK;
+    }
 
 private:
 };
