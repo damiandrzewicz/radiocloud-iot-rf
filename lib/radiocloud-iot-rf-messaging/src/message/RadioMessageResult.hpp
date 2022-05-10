@@ -1,16 +1,16 @@
 #pragma once
 
-enum RadioMessageBuildResult
+enum RadioMessageResult
 {
     OK = 0,
-    VERIFY_ERROR
-};
-
-enum RadioMessageParseResult
-{
-    OK = 0,
+    ERROR,
     VERIFY_ERROR,
-    MESSAGE_TYPE_MISSING,
-    MESSAGE_DIRECTION_MISSING,
-    MODEL_MISMATCH,
+
+    // Build
+
+    // Parse
+    P_MESSAGE_TYPE_MISSING,
+    P_MESSAGE_DIRECTION_MISSING,
+    P_MODEL_MISMATCH,
+    P_MISSING_RESULT
 };

@@ -21,7 +21,7 @@ public:
     {
         if(!messageBuffer_.length())
         {
-            return RadioMessageParseResult::VERIFY_ERROR;
+            return RadioMessageResult::VERIFY_ERROR;
         }
 
         auto delim = messageBuffer_.getDelimeter();
@@ -29,21 +29,21 @@ public:
         auto sType = strtok(messageBuffer_.data(), delim);
         auto sDirection = strtok(NULL, delim);
         
-        if(!sType){ return RadioMessageParseResult::MESSAGE_TYPE_MISSING; }
-        if(!sDirection){ return RadioMessageParseResult::MESSAGE_DIRECTION_MISSING; }
+        if(!sType){ return RadioMessageResult::P_MESSAGE_TYPE_MISSING; }
+        if(!sDirection){ return RadioMessageResult::P_MESSAGE_DIRECTION_MISSING; }
 
         auto type = static_cast<RadioMessageType>(atoi(sType));
         auto direction = static_cast<MessageDirection>(atoi(sDirection));
 
         if(verify && (radioMessageModel.radioMessageType != type || radioMessageModel.messageDirection != direction))
         {
-            return RadioMessageParseResult::MODEL_MISMATCH;
+            return RadioMessageResult::P_MODEL_MISMATCH;
         }
 
         radioMessageModel.radioMessageType = type;
         radioMessageModel.messageDirection = direction;
 
-        return RadioMessageParseResult::OK;
+        return RadioMessageResult::OK;
     }
 
     virtual int build(RadioMessageModel &radioMessageModel) override
@@ -53,15 +53,11 @@ public:
         messageBuffer_.appendDelimeter();
         messageBuffer_.appendLong(static_cast<uint8_t>(radioMessageModel.messageDirection));
 
-        return RadioMessageParseResult::OK;
+        return RadioMessageResult::OK;
     }
 
 protected:
-    bool verifyBufferLength()
-    {
-        return messageBuffer_.length();
-    }
-
-private:
     MessageBuffer &messageBuffer_;
+private:
+    
 };
