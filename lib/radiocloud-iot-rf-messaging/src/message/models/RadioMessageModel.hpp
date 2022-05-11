@@ -4,6 +4,6 @@
 
 struct RadioMessageModel
 {
-    RadioMessageType radioMessageType;
-    MessageDirection   messageDirection;
+    RadioMessageType radioMessageType = RadioMessageType::Nan;
+    MessageDirection   messageDirection = MessageDirection::Nan;
 };

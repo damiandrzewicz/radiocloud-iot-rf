@@ -1,9 +1,11 @@
 #include <unity.h>
-#include "../test_modules/test_MessageBuffer.hpp"
+#include "../test_modules/utils/test_MessageBuffer.hpp"
+#include "../test_modules/message/test_RadioMessage.hpp"
 
 void process() {
     UNITY_BEGIN();
     test_MessageBuffer::process();
+    test_RadioMessage::process();
     UNITY_END();
 }
 

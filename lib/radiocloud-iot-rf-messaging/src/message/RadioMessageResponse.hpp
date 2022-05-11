@@ -35,7 +35,7 @@ protected:
     int checkResult(RadioMessageResponseModel &radioMessageResponseModel)
     {
         auto sResult = strtok(NULL, messageBuffer_.getDelimeter());
-        if(!sResult){ return RadioMessageResult::P_MISSING_RESULT; }
+        if(!sResult){ return RadioMessageResult::MISSING_RESULT; }
 
         radioMessageResponseModel.result = static_cast<RadioMessageResponseModel::Result>(atoi(sResult));
 

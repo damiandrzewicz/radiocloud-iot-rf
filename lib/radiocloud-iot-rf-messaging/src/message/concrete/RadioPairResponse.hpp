@@ -22,7 +22,7 @@ public:
         auto sEncryptKey = strtok(NULL, delim);
         auto sRssi = strtok(NULL, delim);
 
-        if(!sGatewayId || !sNetworkId || !sCustomFrequency || !sEncryptKey || !sRssi){ return RadioMessageResult::P_MISSING_PARAM; }
+        if(!sGatewayId || !sNetworkId || !sCustomFrequency || !sEncryptKey || !sRssi){ return RadioMessageResult::MESSAGE_MALFORMED; }
 
         auto model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
         model.gatewayId = atoi(sGatewayId);
