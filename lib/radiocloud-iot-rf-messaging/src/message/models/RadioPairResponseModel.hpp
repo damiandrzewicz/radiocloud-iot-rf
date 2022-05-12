@@ -2,7 +2,7 @@
 #include <cstdint>
 #include "RadioMessageResponseModel.hpp"
 
-struct RadioPairResponseModel : protected RadioMessageResponseModel
+struct RadioPairResponseModel : public RadioMessageResponseModel
 {
     RadioPairResponseModel()
     {

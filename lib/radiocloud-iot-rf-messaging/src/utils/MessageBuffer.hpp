@@ -72,7 +72,7 @@ public:
     MessageBuffer &operator=(const char *str)
     {
         clear();
-        strncat(buffer_, str, sizeof(buffer_));
+        strncpy(buffer_, str, sizeof(buffer_));
         return *this;
     }
 

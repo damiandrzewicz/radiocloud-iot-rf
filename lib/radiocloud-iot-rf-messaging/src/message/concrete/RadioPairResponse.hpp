@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 #include "../RadioMessageResponse.hpp"
 #include "../models/RadioPairResponseModel.hpp"
 
@@ -14,6 +15,9 @@ public:
         auto res = RadioMessageResponse::parse(radioMessageModel, verify);
         if(res != RadioMessageResult::OK){ return res; }
 
+        auto &model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
+        if(model.result == RadioMessageResponseModel::Result::ERROR){ return RadioMessageResult::OK; }
+
         auto delim = messageBuffer_.getDelimeter();
 
         auto sGatewayId = strtok(NULL, delim);
@@ -23,8 +27,7 @@ public:
         auto sRssi = strtok(NULL, delim);
 
         if(!sGatewayId || !sNetworkId || !sCustomFrequency || !sEncryptKey || !sRssi){ return RadioMessageResult::MESSAGE_MALFORMED; }
-
-        auto model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
+        
         model.gatewayId = atoi(sGatewayId);
         model.networkId = atoi(sNetworkId);
         model.customFrequency = atol(sCustomFrequency);
@@ -39,7 +42,8 @@ public:
         auto res = RadioMessageResponse::build(radioMessageModel);
         if(res != RadioMessageResult::OK){ return res; }
 
-        auto model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
+        const auto &model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
+        if(model.result == RadioMessageResponseModel::Result::ERROR){ return RadioMessageResult::OK; }
 
         messageBuffer_.appendDelimeter();
         messageBuffer_.appendLong(model.gatewayId);

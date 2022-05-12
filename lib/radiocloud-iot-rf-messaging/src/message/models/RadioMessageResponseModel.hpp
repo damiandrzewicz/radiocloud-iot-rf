@@ -1,7 +1,7 @@
 #pragma once
 #include "RadioMessageModel.hpp"
 
-struct RadioMessageResponseModel : protected RadioMessageModel
+struct RadioMessageResponseModel : public RadioMessageModel
 {
     enum class Result
     {
@@ -9,5 +9,5 @@ struct RadioMessageResponseModel : protected RadioMessageModel
         ERROR
     };
 
-    Result result;
+    Result result = Result::OK;
 };
