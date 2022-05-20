@@ -1,45 +1,42 @@
-#pragma once
+// #pragma once
 
-#include <unity.h>
-#include "utils/MessageBuffer.hpp"
-#include "message/RadioMessageRequest.hpp"
-#include "message/models/RadioPairRequestModel.hpp"
+// #include <unity.h>
+// #include "utils/MessageBuffer.hpp"
+// #include "message/concrete/RadioPairRequest.hpp"
 
-namespace test_RadioPairRequest
-{
-    MessageBuffer buffer_;
+// namespace test_RadioPairRequest
+// {
+//     MessageBuffer buffer_;
 
-    void test_RadioPairRequest_build(void) {
-        // given
-        RadioMessageRequest obj(buffer_);
-        RadioPairRequestModel model;
+//     void test_RadioPairRequest_build(void) {
+//         // given
+//         RadioPairRequest obj(buffer_);
 
-        // when
-        auto res = obj.build(model);
+//         // when
+//         auto res = obj.build();
 
-        // then
-        TEST_ASSERT_EQUAL(RadioMessageResult::OK, res);
-        TEST_ASSERT_EQUAL_STRING("1|1", buffer_.data());
-    }
+//         // then
+//         TEST_ASSERT_TRUE(res.isOk());
+//         TEST_ASSERT_EQUAL_STRING("1|1", buffer_.data());
+//     }
 
-    void test_RadioPairRequest_parse(void) {
-        // given
-        buffer_ = "1|1";
-        RadioMessageRequest obj(buffer_);
-        RadioPairRequestModel model;
+//     void test_RadioPairRequest_parse(void) {
+//         // given
+//         buffer_ = "1|1";
+//         RadioPairRequest obj(buffer_);
 
-        // when
-        auto res = obj.parse(model);
+//         // when
+//         auto res = obj.parse();
 
-        // then
-        TEST_ASSERT_EQUAL(RadioMessageResult::OK, res);
-        TEST_ASSERT_EQUAL(RadioMessageType::Pair, model.radioMessageType);
-        TEST_ASSERT_EQUAL(MessageDirection::Request, model.messageDirection );
-    }
+//         // then
+//         TEST_ASSERT_TRUE(res.isOk());
+//         TEST_ASSERT_EQUAL(RadioMessageType::Pair, obj.getRadioMessageType());
+//         TEST_ASSERT_EQUAL(MessageDirection::Request, obj.getMessageDirection() );
+//     }
 
-    void process()
-    {
-        RUN_TEST(test_RadioPairRequest_build);
-        RUN_TEST(test_RadioPairRequest_parse);
-    }
-};
+//     void process()
+//     {
+//         RUN_TEST(test_RadioPairRequest_build);
+//         RUN_TEST(test_RadioPairRequest_parse);
+//     }
+// };

@@ -5,6 +5,13 @@ class RadioMessageModel;
 class IMessage
 {
 public:
+
+    enum class Direction
+    {
+        Reqeust = 1,
+        Response
+    };
+
     virtual ~IMessage(){}
     
     /**
@@ -13,14 +20,13 @@ public:
      * @param verify 
      * @return int Returns 0 if parse ok or error_code > 0
      */
-    virtual int parse(RadioMessageModel &radioMessageModel, bool verify = true) = 0;
+    virtual int parse(bool verify = true) = 0;
 
     /**
      * @brief Builds string message from model
      * 
-     * @param model 
      * @return int Returns 0 if parse ok or error_code > 0
      */
-    virtual int build(RadioMessageModel &radioMessageModel) = 0;
+    virtual int build() = 0;
 };
 
