@@ -13,24 +13,11 @@ public:
         Register
     };
 
-    class ActionResult
+    enum class ProcessError
     {
-    public:
-        enum class Value
-        {
-            Ok,
-            Error,
-            MetadataMismatch
-        };
-
-        bool isError()const{ return value_ != Value::Ok; }
-        bool isOk()const{ return value_ == Value::Ok; }
-        Value value()const{ return value_; }
-
-        bool operator==(Value value){ return value == value_; }
-
-    private:
-        Value value_;
+        Generic,
+        MetadataMismatch,
+        EmptyBuffer
     };
 
     class Metadata
@@ -54,59 +41,55 @@ public:
 
     virtual ~RadioMessage(){}
 
-    virtual int parse(bool verify = true) override
+    virtual bool parse(bool verify = true) override
     {
-        // if(!messageBuffer_.length())
-        // {
-        //     return RadioMessageResult::EMPTY_BUFFER;
-        // }
+        if(!messageBuffer_.length())
+        {
+            lastProcessError_ = ProcessError::EmptyBuffer;
+            return false;
+        }
 
-        // auto delim = messageBuffer_.getDelimeter();
+        auto delim = messageBuffer_.getDelimeter();
 
-        // auto sType = strtok(messageBuffer_.data(), delim);
-        // auto sDirection = strtok(NULL, delim);
+        auto sType = strtok(messageBuffer_.data(), delim);
+        auto sDirection = strtok(NULL, delim);
         
-        // if(!sType || !sDirection){ return RadioMessageResult::MESSAGE_MALFORMED; }
+        if(!sType || !sDirection)
+        { 
+            lastProcessError_ = ProcessError::MetadataMismatch;
+            return false;
+        }
 
-        // auto type = static_cast<RadioMessageType>(atoi(sType));
-        // auto direction = static_cast<MessageDirection>(atoi(sDirection));
+        auto type = static_cast<Type>(atoi(sType));
+        auto direction = static_cast<Direction>(atoi(sDirection));
 
-        // if(verify && (radioMessageModel.radioMessageType != type || radioMessageModel.messageDirection != direction))
-        // {
-        //     return RadioMessageResult::MODEL_MALFORMED;
-        // }
+        if(verify && (metadata_.type() != type || metadata_.direction() != direction))
+        {
+            lastProcessError_ = ProcessError::MetadataMismatch;
+            return false;
+        }
 
-        // radioMessageModel.radioMessageType = type;
-        // radioMessageModel.messageDirection = direction;
+        metadata_ = Metadata(type, direction);
 
-        // return RadioMessageResult::OK;
-
-        return 0;
+        return true;
     }
 
-    virtual int build() override
+    virtual bool build() override
     {
-        // if(radioMessageModel.messageDirection == MessageDirection::Nan 
-        //     || radioMessageModel.radioMessageType == RadioMessageType::Nan)
-        // {
-        //     return RadioMessageResult::MODEL_MALFORMED;
-        // }
+        messageBuffer_.clear();
+        messageBuffer_.appendLong(static_cast<uint8_t>(metadata_.type()));
+        messageBuffer_.appendDelimeter();
+        messageBuffer_.appendLong(static_cast<uint8_t>(metadata_.direction()));
 
-        // messageBuffer_.clear();
-        // messageBuffer_.appendLong(static_cast<uint8_t>(radioMessageModel.radioMessageType));
-        // messageBuffer_.appendDelimeter();
-        // messageBuffer_.appendLong(static_cast<uint8_t>(radioMessageModel.messageDirection));
-
-        // return RadioMessageResult::OK;
-
-        return 0;
+        return true;
     }
 
     const Metadata &metadata() const { return metadata_; }
+    ProcessError lastProcessError() const { return lastProcessError_; }
 
 protected:
     MessageBuffer &messageBuffer_;
-    
+    ProcessError lastProcessError_ = ProcessError::Generic;
 
 private:    
     Metadata metadata_;

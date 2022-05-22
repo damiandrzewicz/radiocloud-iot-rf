@@ -19,12 +19,11 @@ namespace test_RadioMessage
         // when
 
         // then
-        TEST_ASSERT_EQUAL_STRING("1|1", buffer_.data());
         TEST_ASSERT_EQUAL(type, rm.metadata().type());
         TEST_ASSERT_EQUAL(dir, rm.metadata().direction());
     }
 
-    void test_RadioMessage_parse_metadataMismatchErr()
+    void test_RadioMessage_parse_metadataMismatchErr1()
     {
         // given
         auto type = RadioMessage::Type::Pair;
@@ -33,105 +32,89 @@ namespace test_RadioMessage
 
         // when
         buffer_ = "1|2";
-        auto res = rm.parse();
+        TEST_ASSERT_FALSE(rm.parse());
 
         // then
-        TEST_ASSERT_TRUE(res.isError());
-        TEST_ASSERT_EQUALS(RadioMessage::ActionResult::Value::MetadataMismatch, res.value());
+        TEST_ASSERT_EQUAL(RadioMessage::ProcessError::MetadataMismatch, rm.lastProcessError());
     }
 
-    // void test_RadioMessage_build_emptyModel(void) {
-    //     // given
-    //     RadioMessage obj(buffer_);
-    //     RadioMessageModel model;
+    void test_RadioMessage_parse_metadataMismatchErr2()
+    {
+        // given
+        auto type = RadioMessage::Type::Pair;
+        auto dir = RadioMessage::Direction::Reqeust;
+        RadioMessage rm(buffer_, { type, dir });
 
-    //     // when
-    //     auto res = obj.build(model);
+        // when
+        buffer_ = "1|";
+        TEST_ASSERT_FALSE(rm.parse());
 
-    //     // then
-    //     TEST_ASSERT_EQUAL(RadioMessageResult::MODEL_MALFORMED, res);
-    //     TEST_ASSERT_FALSE(buffer_.isFilled());
-    // }
+        // then
+        TEST_ASSERT_EQUAL(RadioMessage::ProcessError::MetadataMismatch, rm.lastProcessError());
+    }
 
-    // void test_RadioMessage_build_filledBuffer(void) {
-    //     // given
-    //     buffer_.appendText("someTrash...");
-    //     RadioMessage obj(buffer_);
+        void test_RadioMessage_parse_metadataDoNotVerify()
+    {
+        // given
+        auto type = RadioMessage::Type::Pair;
+        auto dir = RadioMessage::Direction::Reqeust;
+        RadioMessage rm(buffer_, { type, dir });
 
-    //     RadioMessageModel model;
-    //     model.messageDirection = MessageDirection::Response;
-    //     model.radioMessageType = RadioMessageType::Pair;
+        // when
+        buffer_ = "1|2";
+        TEST_ASSERT_TRUE(rm.parse(false));
 
-    //     // when
-    //     auto res = obj.build(model);
+        // then
+        TEST_ASSERT_EQUAL(RadioMessage::Type::Pair, rm.metadata().type());
+        TEST_ASSERT_EQUAL(RadioMessage::Direction::Response, rm.metadata().direction());
+    }
 
-    //     // then
-    //     TEST_ASSERT_EQUAL(RadioMessageResult::OK, res);
-    //     TEST_ASSERT_EQUAL_STRING("1|2", buffer_.data());
-    // }
+    void test_RadioMessage_parse_emptyBufferErr()
+    {
+        // given
+        auto type = RadioMessage::Type::Pair;
+        auto dir = RadioMessage::Direction::Reqeust;
+        RadioMessage rm(buffer_, { type, dir });
 
-    // void test_RadioMessage_build(void) {
-    //     // given
-    //     RadioMessage obj(buffer_);
+        // when
+        buffer_ = "";
+        TEST_ASSERT_FALSE(rm.parse());
 
-    //     RadioMessageModel model;
-    //     model.messageDirection = MessageDirection::Response;
-    //     model.radioMessageType = RadioMessageType::Pair;
+        // then
+        TEST_ASSERT_EQUAL(RadioMessage::ProcessError::EmptyBuffer, rm.lastProcessError());
+    }
 
-    //     // when
-    //     auto res = obj.build(model);
+    void test_RadioMessage_parse_ok()
+    {
+        // given
+        auto type = RadioMessage::Type::Pair;
+        auto dir = RadioMessage::Direction::Reqeust;
+        RadioMessage rm(buffer_, { type, dir });
 
-    //     // then
-    //     TEST_ASSERT_EQUAL(RadioMessageResult::OK, res);
-    //     TEST_ASSERT_EQUAL_STRING("1|2", buffer_.data());
-    // }
+        // when
+        buffer_ = "1|1";
+        TEST_ASSERT_TRUE(rm.parse());
+    }
 
-    // void test_RadioMessage_parse_emptyBuffer(void) {
-    //     // given
-    //     buffer_.clear();
-    //     RadioMessage obj(buffer_);
-    //     RadioMessageModel model;
+    void test_RadioMessage_build_ok()
+    {
+        // given
+        auto type = RadioMessage::Type::Pair;
+        auto dir = RadioMessage::Direction::Reqeust;
+        RadioMessage rm(buffer_, { type, dir });
 
-    //     // when
-    //     auto res = obj.parse(model);
-
-    //     // then
-    //     TEST_ASSERT_EQUAL(RadioMessageResult::EMPTY_BUFFER, res);
-    // }
-
-    // void test_RadioMessage_parse_messageMalformed(void) {
-    //     // given
-    //     buffer_ = "|2";
-    //     RadioMessage obj(buffer_);
-    //     RadioMessageModel model;
-
-    //     // when
-    //     auto res = obj.parse(model);
-
-    //     // then
-    //     TEST_ASSERT_EQUAL(RadioMessageResult::MESSAGE_MALFORMED, res);
-    // }
-
-    // void test_RadioMessage_parse(void) {
-    //     // given
-    //     buffer_ = "1|2";
-    //     RadioMessage obj(buffer_);
-    //     RadioMessageModel model;
-    //     model.messageDirection = MessageDirection::Response;
-    //     model.radioMessageType = RadioMessageType::Pair;
-
-    //     // when
-    //     auto res = obj.parse(model);
-
-    //     // then
-    //     TEST_ASSERT_EQUAL(RadioMessageResult::OK, res);
-    //     TEST_ASSERT_EQUAL(MessageDirection::Response, model.messageDirection);
-    //     TEST_ASSERT_EQUAL(RadioMessageType::Pair, model.radioMessageType);
-    // }
+        // when
+        TEST_ASSERT_TRUE(rm.build());
+        TEST_ASSERT_EQUAL_STRING("1|1", buffer_.data());
+    }
 
     void process()
     {
         RUN_TEST(test_RadioMessage_createObject);
-
+        RUN_TEST(test_RadioMessage_parse_metadataMismatchErr1);
+        RUN_TEST(test_RadioMessage_parse_metadataMismatchErr2);
+        RUN_TEST(test_RadioMessage_parse_metadataDoNotVerify);
+        RUN_TEST(test_RadioMessage_parse_emptyBufferErr);
+        RUN_TEST(test_RadioMessage_build_ok);
     }
 };
