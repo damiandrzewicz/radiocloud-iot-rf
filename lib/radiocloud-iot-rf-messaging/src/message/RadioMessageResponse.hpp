@@ -1,54 +1,62 @@
-// #pragma once
-// #include "RadioMessage.hpp"
-// #include "models/RadioMessageResponseModel.hpp"
+#pragma once
+#include "RadioMessage.hpp"
 
-// class RadioMessageResponse : public RadioMessage
-// {
-// public:
-//     RadioMessageResponse(MessageBuffer &messageBuffer)
-//     : RadioMessage(messageBuffer)
-//     {}
+class RadioMessageResponse : public RadioMessage
+{
+public:
+    RadioMessageResponse(MessageBuffer &messageBuffer)
+    : RadioMessage(messageBuffer)
+    {
+    }
 
-//     virtual int parse(RadioMessageModel &radioMessageModel, bool verify = true) override
-//     {
-//         auto res = RadioMessage::parse(radioMessageModel, verify);
-//         if(res != RadioMessageResult::OK){ return res; }
+    RadioMessageResponse(MessageBuffer &messageBuffer, Metadata metadata)
+    : RadioMessage(messageBuffer, metadata)
+    {
+    }
 
-//         res = checkResult(reinterpret_cast<RadioMessageResponseModel&>(radioMessageModel));
-//         if(res != RadioMessageResult::OK){ return res; }
+    void setResponseError(){ resultError_ = true; }
+    bool isResponseError(){ return resultError_; }
+    
+    virtual bool parse() override
+    {
+        if(!RadioMessage::parse()){ return false; }
 
-//         return RadioMessageResult::OK;
-//     }
+        if(!checkResult()){ return false; }
 
-//     virtual int build(RadioMessageModel &radioMessageModel) override
-//     {
-//         auto res = RadioMessage::build(radioMessageModel);
-//         if(res != RadioMessageResult::OK){ return res; }
+        return true;
+    }
 
-//         res = buildResult(reinterpret_cast<RadioMessageResponseModel&>(radioMessageModel));
-//         if(res != RadioMessageResult::OK){ return res; }
+    virtual bool build() override
+    {
+        if(!RadioMessage::build()){ return false; }
 
-//         return RadioMessageResult::OK;
-//     }
+        if(!buildResult()){ return false; }
 
-// protected:
-//     int checkResult(RadioMessageResponseModel &radioMessageResponseModel)
-//     {
-//         auto sResult = strtok(NULL, messageBuffer_.getDelimeter());
-//         if(!sResult){ return RadioMessageResult::MISSING_RESULT; }
+        return true;
+    }
 
-//         radioMessageResponseModel.result = static_cast<RadioMessageResponseModel::Result>(atoi(sResult));
+protected:
+    bool checkResult()
+    {
+        auto sResult = strtok(NULL, messageBuffer_.getDelimeter());
+        if(!sResult){ 
+            lastProcessError_ = RadioMessage::ProcessError::MissingResult;
+            return false;
+        }
 
-//         return RadioMessageResult::OK;
-//     }
+        resultError_ = static_cast<bool>(atoi(sResult));
 
-//     int buildResult(RadioMessageResponseModel &radioMessageResponseModel)
-//     {
-//         messageBuffer_.appendDelimeter();
-//         messageBuffer_.appendLong(static_cast<long>(radioMessageResponseModel.result));
+        return true;
+    }
 
-//         return RadioMessageResult::OK;
-//     }
+    int buildResult()
+    {
+        messageBuffer_.appendDelimeter();
+        messageBuffer_.appendLong(static_cast<long>(resultError_));
 
-// private:
-// };
+        return true;
+    }
+
+private:
+    bool resultError_ = false;
+};

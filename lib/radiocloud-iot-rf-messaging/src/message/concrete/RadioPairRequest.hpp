@@ -1,17 +1,19 @@
 #pragma once
-#include "../RadioMessageResponse.hpp"
+
+#include "../RadioMessageRequest.hpp"
 #include "../IMessageModel.hpp"
 
-struct RadioPairResponseModel
-{
-
-};
-
-class RadioPairResponse : public RadioMessageResponse, public IMessageModel<RadioPairResponseModel>
+class RadioPairRequest : public RadioMessageRequest
 {
 public:
-    RadioPairResponse(MessageBuffer &messageBuffer)
-    : RadioMessageResponse(messageBuffer)
+
+    struct Model
+    {
+
+    };
+
+    RadioPairRequest(MessageBuffer &messageBuffer)
+    : RadioMessageRequest(messageBuffer)
     {}
 
     virtual bool parse() override
@@ -19,7 +21,7 @@ public:
         // auto res = RadioMessageResponse::parse(radioMessageModel, verify);
         // if(res != RadioMessageResult::OK){ return res; }
 
-        // auto &model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
+        // auto &model = reinterpret_cast<RadioPairRequestModel&>(radioMessageModel);
         // if(model.result == RadioMessageResponseModel::Result::ERROR){ return RadioMessageResult::OK; }
 
         // auto delim = messageBuffer_.getDelimeter();
@@ -48,7 +50,7 @@ public:
         // auto res = RadioMessageResponse::build(radioMessageModel);
         // if(res != RadioMessageResult::OK){ return res; }
 
-        // const auto &model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
+        // const auto &model = reinterpret_cast<RadioPairRequestModel&>(radioMessageModel);
         // if(model.result == RadioMessageResponseModel::Result::ERROR){ return RadioMessageResult::OK; }
 
         // messageBuffer_.appendDelimeter();

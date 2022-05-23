@@ -1,0 +1,116 @@
+#pragma once
+
+#include <unity.h>
+#include "utils/MessageBuffer.hpp"
+#include "message/RadioMessage.hpp"
+
+MessageBuffer buffer_;
+
+void test_createObject()
+{
+    // given
+    auto type = RadioMessage::Type::Pair;
+    auto dir = RadioMessage::Direction::Reqeust;
+    RadioMessage rm(buffer_, { type, dir });
+
+    // when
+
+    // then
+    TEST_ASSERT_EQUAL(type, rm.metadata().type());
+    TEST_ASSERT_EQUAL(dir, rm.metadata().direction());
+}
+
+void test_parse_metadataMismatchErr1()
+{
+    // given
+    auto type = RadioMessage::Type::Pair;
+    auto dir = RadioMessage::Direction::Reqeust;
+    RadioMessage rm(buffer_, { type, dir });
+    rm.setVerify(true);
+
+    // when
+    buffer_ = "1|2";
+    TEST_ASSERT_FALSE(rm.parse());
+
+    // then
+    TEST_ASSERT_EQUAL(RadioMessage::ProcessError::MetadataMismatch, rm.lastProcessError());
+}
+
+void test_parse_metadataMismatchErr2()
+{
+    // given
+    auto type = RadioMessage::Type::Pair;
+    auto dir = RadioMessage::Direction::Reqeust;
+    RadioMessage rm(buffer_, { type, dir });
+
+    // when
+    buffer_ = "1|";
+    TEST_ASSERT_FALSE(rm.parse());
+
+    // then
+    TEST_ASSERT_EQUAL(RadioMessage::ProcessError::MetadataMismatch, rm.lastProcessError());
+}
+
+void test_parse_metadataDoNotVerify()
+{
+    // given
+    RadioMessage rm(buffer_);
+
+    // when
+    buffer_ = "1|2";
+    TEST_ASSERT_TRUE(rm.parse());
+
+    // then
+    TEST_ASSERT_EQUAL(RadioMessage::Type::Pair, rm.metadata().type());
+    TEST_ASSERT_EQUAL(RadioMessage::Direction::Response, rm.metadata().direction());
+}
+
+void test_parse_emptyBufferErr()
+{
+    // given
+    auto type = RadioMessage::Type::Pair;
+    auto dir = RadioMessage::Direction::Reqeust;
+    RadioMessage rm(buffer_, { type, dir });
+
+    // when
+    buffer_ = "";
+    TEST_ASSERT_FALSE(rm.parse());
+
+    // then
+    TEST_ASSERT_EQUAL(RadioMessage::ProcessError::EmptyBuffer, rm.lastProcessError());
+}
+
+void test_parse_ok()
+{
+    // given
+    auto type = RadioMessage::Type::Pair;
+    auto dir = RadioMessage::Direction::Reqeust;
+    RadioMessage rm(buffer_, { type, dir });
+
+    // when
+    buffer_ = "1|1";
+    TEST_ASSERT_TRUE(rm.parse());
+}
+
+void test_build_ok()
+{
+    // given
+    buffer_ = "someTrash";
+    auto type = RadioMessage::Type::Pair;
+    auto dir = RadioMessage::Direction::Reqeust;
+    RadioMessage rm(buffer_, { type, dir });
+
+    // when
+    TEST_ASSERT_TRUE(rm.build());
+    TEST_ASSERT_EQUAL_STRING("1|1", buffer_.data());
+}
+
+void process_RadioMessage_tests()
+{
+    RUN_TEST(test_createObject);
+    RUN_TEST(test_parse_metadataMismatchErr1);
+    RUN_TEST(test_parse_metadataMismatchErr2);
+    RUN_TEST(test_parse_metadataDoNotVerify);
+    RUN_TEST(test_parse_emptyBufferErr);
+    RUN_TEST(test_build_ok);
+}

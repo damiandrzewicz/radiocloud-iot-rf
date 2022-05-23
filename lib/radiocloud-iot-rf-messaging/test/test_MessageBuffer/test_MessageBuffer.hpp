@@ -8,7 +8,7 @@
  * @brief Empty buffer tests
  * 
  */
-void test_MessageBuffer_createObject_noArgs(void) {
+void test_createObject_noArgs(void) {
     // given
     // when
     MessageBuffer obj;
@@ -18,7 +18,7 @@ void test_MessageBuffer_createObject_noArgs(void) {
     TEST_ASSERT_EQUAL_STRING("|", obj.getDelimeter());
 }
 
-void test_MessageBuffer_length_emptyBuffer(void) {
+void test_length_emptyBuffer(void) {
     // given
     MessageBuffer obj;
 
@@ -27,7 +27,7 @@ void test_MessageBuffer_length_emptyBuffer(void) {
     TEST_ASSERT_EQUAL(0, obj.length());
 }
 
-void test_MessageBuffer_data_emptyBuffer(void) {
+void test_data_emptyBuffer(void) {
     // given
     MessageBuffer obj;
 
@@ -36,7 +36,7 @@ void test_MessageBuffer_data_emptyBuffer(void) {
     TEST_ASSERT_EQUAL_STRING("", obj.data());
 }
 
-void test_MessageBuffer_isFilled_emptyBuffer(void) {
+void test_isFilled_emptyBuffer(void) {
     // given
     MessageBuffer obj;
 
@@ -50,7 +50,7 @@ void test_MessageBuffer_isFilled_emptyBuffer(void) {
  * 
  */
 
-void test_MessageBuffer_appendText(void) {
+void test_appendText(void) {
     // given
     MessageBuffer obj;
 
@@ -61,7 +61,7 @@ void test_MessageBuffer_appendText(void) {
     TEST_ASSERT_EQUAL_STRING("test", obj.data());
 }
 
-void test_MessageBuffer_length_filledBuffer(void) {
+void test_length_filledBuffer(void) {
     // given
     MessageBuffer obj;
 
@@ -72,7 +72,7 @@ void test_MessageBuffer_length_filledBuffer(void) {
     TEST_ASSERT_EQUAL(strlen("test"), obj.length());
 }
 
-void test_MessageBuffer_data_filledBuffer(void) {
+void test_data_filledBuffer(void) {
     // given
     MessageBuffer obj;
 
@@ -83,7 +83,7 @@ void test_MessageBuffer_data_filledBuffer(void) {
     TEST_ASSERT_EQUAL_STRING("test", obj.data());
 }
 
-void test_MessageBuffer_isFilled_filledBuffer(void) {
+void test_isFilled_filledBuffer(void) {
     // given
     MessageBuffer obj;
 
@@ -94,7 +94,7 @@ void test_MessageBuffer_isFilled_filledBuffer(void) {
     TEST_ASSERT_TRUE(obj.isFilled());
 }
 
-void test_MessageBuffer_appendLong(void) {
+void test_appendLong(void) {
     // given
     MessageBuffer obj;
 
@@ -105,7 +105,7 @@ void test_MessageBuffer_appendLong(void) {
     TEST_ASSERT_EQUAL_STRING("4433441", obj.data());
 }
 
-void test_MessageBuffer_appendFloat(void) {
+void test_appendFloat(void) {
     // given
     MessageBuffer obj;
 
@@ -116,7 +116,7 @@ void test_MessageBuffer_appendFloat(void) {
     TEST_ASSERT_EQUAL_STRING("12345.78", obj.data());
 }
 
-void test_MessageBuffer_customDelimeter(void) {
+void test_customDelimeter(void) {
     // given
     MessageBuffer obj("x");
 
@@ -125,7 +125,7 @@ void test_MessageBuffer_customDelimeter(void) {
     TEST_ASSERT_EQUAL_STRING("x", obj.getDelimeter());
 }
 
-void test_MessageBuffer_assignOperator(void) {
+void test_assignOperator(void) {
     // given
     MessageBuffer obj;
     TEST_ASSERT_EQUAL_STRING("", obj.data());
@@ -136,7 +136,7 @@ void test_MessageBuffer_assignOperator(void) {
     TEST_ASSERT_EQUAL_STRING("someData123", obj.data());
 }
 
-void test_MessageBuffer_clear(void) {
+void test_clear(void) {
     // given
     MessageBuffer obj;
     obj.appendText("initialData");
@@ -149,7 +149,7 @@ void test_MessageBuffer_clear(void) {
     TEST_ASSERT_EQUAL_STRING("", obj.data());
 }
 
-void test_MessageBuffer_buildMessage(void) {
+void test_buildMessage(void) {
     // given
     MessageBuffer obj;
 
@@ -164,23 +164,20 @@ void test_MessageBuffer_buildMessage(void) {
     TEST_ASSERT_EQUAL_STRING("text|123|1.23", obj.data());
 }
 
-namespace test_MessageBuffer
+void process_MessageBuffer_tests()
 {
-    void process()
-    {
-        RUN_TEST(test_MessageBuffer_createObject_noArgs);
-        RUN_TEST(test_MessageBuffer_length_emptyBuffer);
-        RUN_TEST(test_MessageBuffer_data_emptyBuffer);
-        RUN_TEST(test_MessageBuffer_isFilled_emptyBuffer);
-        RUN_TEST(test_MessageBuffer_appendText);
-        RUN_TEST(test_MessageBuffer_length_filledBuffer);
-        RUN_TEST(test_MessageBuffer_data_filledBuffer);
-        RUN_TEST(test_MessageBuffer_isFilled_filledBuffer);
-        RUN_TEST(test_MessageBuffer_appendLong);
-        RUN_TEST(test_MessageBuffer_appendFloat);
-        RUN_TEST(test_MessageBuffer_customDelimeter);
-        RUN_TEST(test_MessageBuffer_assignOperator);
-        RUN_TEST(test_MessageBuffer_clear);
-        RUN_TEST(test_MessageBuffer_buildMessage);
-    }
-};
+    RUN_TEST(test_createObject_noArgs);
+    RUN_TEST(test_length_emptyBuffer);
+    RUN_TEST(test_data_emptyBuffer);
+    RUN_TEST(test_isFilled_emptyBuffer);
+    RUN_TEST(test_appendText);
+    RUN_TEST(test_length_filledBuffer);
+    RUN_TEST(test_data_filledBuffer);
+    RUN_TEST(test_isFilled_filledBuffer);
+    RUN_TEST(test_appendLong);
+    RUN_TEST(test_appendFloat);
+    RUN_TEST(test_customDelimeter);
+    RUN_TEST(test_assignOperator);
+    RUN_TEST(test_clear);
+    RUN_TEST(test_buildMessage);
+}

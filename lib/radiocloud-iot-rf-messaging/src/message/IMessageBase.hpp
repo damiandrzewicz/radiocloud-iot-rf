@@ -1,8 +1,6 @@
 #pragma once
 
-class RadioMessageModel;
-
-class IMessage
+class IMessageBase
 {
 public:
 
@@ -12,15 +10,14 @@ public:
         Response
     };
 
-    virtual ~IMessage(){}
+    virtual ~IMessageBase(){}
     
     /**
      * @brief Parses message from buffer and converts to model
-     * 
-     * @param verify 
+     *
      * @return int Returns 0 if parse ok or error_code > 0
      */
-    virtual bool parse(bool verify = true) = 0;
+    virtual bool parse() = 0;
 
     /**
      * @brief Builds string message from model

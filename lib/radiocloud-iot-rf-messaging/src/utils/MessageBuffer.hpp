@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <stdlib.h>
 
+char *dtostrf (double, signed char, unsigned char, char *);
+
 class MessageBuffer
 {
 public:

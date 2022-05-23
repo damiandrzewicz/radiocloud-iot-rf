@@ -1,9 +1,9 @@
 #pragma once
 #include <cstdint>
-#include "IMessage.hpp"
+#include "IMessageBase.hpp"
 #include "utils/MessageBuffer.hpp"
 
-class RadioMessage : public IMessage
+class RadioMessage : public IMessageBase
 {
 public:
 
@@ -17,13 +17,14 @@ public:
     {
         Generic,
         MetadataMismatch,
-        EmptyBuffer
+        EmptyBuffer,
+        MissingResult
     };
 
     class Metadata
     {
     public:
-        Metadata() = delete;   // Prevent construction without arguments
+        Metadata(){}
         Metadata(Type type, Direction direction){ type_ = type; direction_ = direction; }
 
         Type type() const { return type_; }
@@ -34,14 +35,19 @@ public:
         Direction direction_;
     };
 
+    RadioMessage(MessageBuffer &messageBuffer)
+    : messageBuffer_(messageBuffer)
+    {
+    }
+
     RadioMessage(MessageBuffer &messageBuffer, Metadata metadata)
-    : messageBuffer_(messageBuffer), metadata_(metadata)
+    :  messageBuffer_(messageBuffer), metadata_(metadata)
     {
     }
 
     virtual ~RadioMessage(){}
 
-    virtual bool parse(bool verify = true) override
+    virtual bool parse() override
     {
         if(!messageBuffer_.length())
         {
@@ -63,7 +69,7 @@ public:
         auto type = static_cast<Type>(atoi(sType));
         auto direction = static_cast<Direction>(atoi(sDirection));
 
-        if(verify && (metadata_.type() != type || metadata_.direction() != direction))
+        if(verify_ && (metadata_.type() != type || metadata_.direction() != direction))
         {
             lastProcessError_ = ProcessError::MetadataMismatch;
             return false;
@@ -86,6 +92,7 @@ public:
 
     const Metadata &metadata() const { return metadata_; }
     ProcessError lastProcessError() const { return lastProcessError_; }
+    void setVerify(bool verify){ verify_ = verify; }
 
 protected:
     MessageBuffer &messageBuffer_;
@@ -93,5 +100,5 @@ protected:
 
 private:    
     Metadata metadata_;
-
+    bool verify_ = false;
 };
