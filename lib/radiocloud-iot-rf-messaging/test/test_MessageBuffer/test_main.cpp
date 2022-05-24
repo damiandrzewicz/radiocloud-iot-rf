@@ -8,7 +8,7 @@
 
 void process() {
     UNITY_BEGIN();
-    process_MessageBuffer_tests();
+    test_MessageBuffer::process();
     UNITY_END();
 }
 

@@ -18,7 +18,8 @@ public:
         Generic,
         MetadataMismatch,
         EmptyBuffer,
-        MissingResult
+        MissingResult,
+        ArgumentsMismatch
     };
 
     class Metadata

@@ -8,7 +8,7 @@
 
 void process() {
     UNITY_BEGIN();
-    process_RadioMessage_tests();
+    test_RadioMessage::process();
     UNITY_END();
 }
 

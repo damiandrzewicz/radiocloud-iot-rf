@@ -11,7 +11,7 @@
 void process() {
     UNITY_BEGIN();
     test_RadioPairRequest::process();
-    test_RadioPairRequest::process();
+    test_RadioPairResponse::process();
     UNITY_END();
 }
 

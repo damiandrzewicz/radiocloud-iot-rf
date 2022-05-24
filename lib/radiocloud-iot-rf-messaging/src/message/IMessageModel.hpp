@@ -6,7 +6,6 @@ class IMessageModel
 public:
     virtual ~IMessageModel(){}
 
-    
     T &model(){ return model_; }
     const T &model() const { return model_; }
 

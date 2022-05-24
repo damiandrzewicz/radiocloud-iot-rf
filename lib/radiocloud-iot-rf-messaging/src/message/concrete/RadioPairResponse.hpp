@@ -4,67 +4,71 @@
 
 struct RadioPairResponseModel
 {
-
+    uint8_t networkId;
+    uint8_t gatewayId;
+    uint32_t customFrequency;
+    const char *encryptKey;
+    int8_t rssi;
 };
 
 class RadioPairResponse : public RadioMessageResponse, public IMessageModel<RadioPairResponseModel>
 {
 public:
     RadioPairResponse(MessageBuffer &messageBuffer)
-    : RadioMessageResponse(messageBuffer)
+    : RadioMessageResponse(messageBuffer, { RadioMessage::Type::Pair, RadioMessage::Direction::Response })
     {}
 
     virtual bool parse() override
     {
-        // auto res = RadioMessageResponse::parse(radioMessageModel, verify);
-        // if(res != RadioMessageResult::OK){ return res; }
+        if(!RadioMessageResponse::parse()){ return false; }
 
-        // auto &model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
-        // if(model.result == RadioMessageResponseModel::Result::ERROR){ return RadioMessageResult::OK; }
+        if(isResponseError()){ return true; }
 
-        // auto delim = messageBuffer_.getDelimeter();
+        auto delim = messageBuffer_.getDelimeter();
 
-        // auto sGatewayId = strtok(NULL, delim);
-        // auto sNetworkId = strtok(NULL, delim);
-        // auto sCustomFrequency = strtok(NULL, delim);
-        // auto sEncryptKey = strtok(NULL, delim);
-        // auto sRssi = strtok(NULL, delim);
+        auto sGatewayId = strtok(NULL, delim);
+        auto sNetworkId = strtok(NULL, delim);
+        auto sCustomFrequency = strtok(NULL, delim);
+        auto sEncryptKey = strtok(NULL, delim);
+        auto sRssi = strtok(NULL, delim);
 
-        // if(!sGatewayId || !sNetworkId || !sCustomFrequency || !sEncryptKey || !sRssi){ return RadioMessageResult::MESSAGE_MALFORMED; }
+        if(!sGatewayId || !sNetworkId || !sCustomFrequency || !sEncryptKey || !sRssi)
+        { 
+            lastProcessError_ = ProcessError::ArgumentsMismatch;
+            return false;
+        }
+
+        auto &m = model();
         
-        // model.gatewayId = atoi(sGatewayId);
-        // model.networkId = atoi(sNetworkId);
-        // model.customFrequency = atol(sCustomFrequency);
-        // model.encryptKey = sEncryptKey;
-        // model.rssi = atoi(sRssi);
+        m.gatewayId = atoi(sGatewayId);
+        m.networkId = atoi(sNetworkId);
+        m.customFrequency = atol(sCustomFrequency);
+        m.encryptKey = sEncryptKey;
+        m.rssi = atoi(sRssi);
 
-        // return RadioMessageResult::OK;
-
-        return false;
+        return true;
     }
 
     virtual bool build() override
     {
-        // auto res = RadioMessageResponse::build(radioMessageModel);
-        // if(res != RadioMessageResult::OK){ return res; }
+        if(!RadioMessageResponse::build()){ return false; }
 
-        // const auto &model = reinterpret_cast<RadioPairResponseModel&>(radioMessageModel);
-        // if(model.result == RadioMessageResponseModel::Result::ERROR){ return RadioMessageResult::OK; }
+        if(isResponseError()){ return true; }
 
-        // messageBuffer_.appendDelimeter();
-        // messageBuffer_.appendLong(model.gatewayId);
-        // messageBuffer_.appendDelimeter();
-        // messageBuffer_.appendLong(model.networkId);
-        // messageBuffer_.appendDelimeter();
-        // messageBuffer_.appendLong(model.customFrequency);
-        // messageBuffer_.appendDelimeter();
-        // messageBuffer_.appendText(model.encryptKey);
-        // messageBuffer_.appendDelimeter();
-        // messageBuffer_.appendLong(model.rssi);
+        auto &m = model();
 
-        // return RadioMessageResult::OK;
+        messageBuffer_.appendDelimeter();
+        messageBuffer_.appendLong(m.gatewayId);
+        messageBuffer_.appendDelimeter();
+        messageBuffer_.appendLong(m.networkId);
+        messageBuffer_.appendDelimeter();
+        messageBuffer_.appendLong(m.customFrequency);
+        messageBuffer_.appendDelimeter();
+        messageBuffer_.appendText(m.encryptKey);
+        messageBuffer_.appendDelimeter();
+        messageBuffer_.appendLong(m.rssi);
 
-        return false;
+        return true;
     }
 
 protected:
