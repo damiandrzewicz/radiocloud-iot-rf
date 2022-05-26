@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstring>
-#include <cstdio>
+#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 char *dtostrf (double, signed char, unsigned char, char *);
@@ -46,7 +46,7 @@ public:
 
     uint8_t length()
     {
-        return std::strlen(buffer_);
+        return strlen(buffer_);
     }
 
     bool isFilled()

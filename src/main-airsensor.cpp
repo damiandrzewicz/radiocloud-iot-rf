@@ -2,6 +2,8 @@
 
 #include <TrueRandom.h>
 
+#include "core/RadioCloudCore.h"
+
 
 void setup() {
   // put your setup code here, to run once:
