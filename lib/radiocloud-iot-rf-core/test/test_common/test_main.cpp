@@ -1,11 +1,8 @@
 #include <unity.h>
-#include "../test_modules/test_calculator.h"
-#include "../test_modules/test_foo.h"
 
 void process() {
     UNITY_BEGIN();
-    process_test_function_foo();
-    process_test_function_calculator();
+
     UNITY_END();
 }
 

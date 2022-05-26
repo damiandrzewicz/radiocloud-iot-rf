@@ -8,3 +8,4 @@ node_modules
 
 # KiCad files
 *.sch-bak
+secrets.ini
