@@ -5,7 +5,7 @@
 #include <ArduinoLog.h>
 #include <EEPROM.h>
 #include "RFM69_ATC.h"
-#include "../../radiocloud-iot-rf-messaging/src/utils/MessageBuffer.hpp"
+#include "utils/MessageBuffer.hpp"
 #include "YA_FSM.h"
 #include "UUIDConfig.hpp"
 #include "utils/Convert.hpp"
@@ -13,7 +13,6 @@
 class RadioCloudCore
 {
 public:
-
     struct RadioPinConfig
     {
         uint8_t ssPin;
@@ -31,6 +30,7 @@ public:
 
     RadioCloudCore(RadioPinConfig radioPinConfig = {RF69_SPI_CS, RF69_IRQ_PIN})
     {
+        radio_ = { radioPinConfig.ssPin, radioPinConfig.irqPin };
     }
 
     virtual ~RadioCloudCore(){}
