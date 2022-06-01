@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include <stdint.h>
 #include "IMessageBase.hpp"
 #include "utils/MessageBuffer.hpp"
 
