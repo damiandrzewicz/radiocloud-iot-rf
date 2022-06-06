@@ -4,12 +4,12 @@
 #include <Arduino.h>
 #include <ArduinoLog.h>
 #include "core/RadioCloudCore.h"
-#include "YA_FSM.h"
 #include "NodeContext.hpp"
 #include <ezButton.h>
 #include <ezLED.h>
+#include "core/FSM.hpp"
 
-class RadioCloudNode : public RadioCloudCore
+class RadioCloudNode : public RadioCloudCore, public FSM
 {
 public:
 
@@ -22,14 +22,14 @@ public:
         Long
     };
 
-    enum State {
+    enum FSM_State {
         ChekConfig,
         RadioSend,
         RadioReceive,
         Sleep,
         StateBtnDispatch,
         RadioPair,
-        FactoryReset,
+        FactoryReset
     };
 
     RadioCloudNode(uint8_t stateBtnPin = 4, uint8_t stateLedPin = 9, int8_t extInterruptPin = 3);
@@ -44,21 +44,22 @@ public:
     void postDeepSleep();
 
 protected:
-    virtual void initStateMachine() override;
+    virtual void initFSM() override;
+    virtual void loopFSM() override;
 
     StateBtnPress stateBtnCheck();
     
     // Action handlers
-    FSM_StateResult onCheckConfig();
-    FSM_StateResult onRadioSend();
-    FSM_StateResult onRadioReceive();
-    FSM_StateResult onSleep();
+    FSM::StateResult onCheckConfig();
+    FSM::StateResult onRadioSend();
+    FSM::StateResult onRadioReceive();
+    FSM::StateResult onSleep();
     void onEnterStateBtnDispatch();
-    FSM_StateResult onStateBtnDispatch();
+    FSM::StateResult onStateBtnDispatch();
     void onLeaveStateBtnDispatch();
-    FSM_StateResult onRadioPair();
-    FSM_StateResult onRadioReset();
-    FSM_StateResult onFactoryReset();
+    FSM::StateResult onRadioPair();
+    FSM::StateResult onRadioReset();
+    FSM::StateResult onFactoryReset();
 
 private:
     NodeContext nodeContext_;
@@ -69,4 +70,6 @@ private:
 
     StateBtnPress stateBtnPress_ = StateBtnPress::NoPress;
     unsigned long sleepTime_ = 0;
+
+    FSM_State fsmState_;
 };

@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include "RFM69_ATC.h"
-#include "utils/MessageBuffer.hpp"
-#include "YA_FSM.h"
+#include "../../../radiocloud-iot-rf-messaging/src/utils/MessageBuffer.hpp"
+//#include "utils/MessageBuffer.hpp"
 #include "UUIDConfig.hpp"
 
 
@@ -27,7 +27,6 @@ public:
     virtual void loop();
 
 protected:
-    virtual void initStateMachine() = 0;
 
     // Radio operations
     bool radioSetup(uint8_t nodeId, const RadioConfig &config);
@@ -42,7 +41,6 @@ protected:
 protected:
     RFM69_ATC radio_;
     MessageBuffer messageBuffer_;
-    YA_FSM stateMachine_;
 
     UUIDConfig uuidConfig_;
     RadioConfig radioConfig_;

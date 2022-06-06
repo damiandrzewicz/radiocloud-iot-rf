@@ -1,6 +1,6 @@
 #include <Arduino.h>
-
-#include <TrueRandom.h>
+#include <ArduinoLog.h>
+#include <Wire.h>
 
 #include "node/RadioCloudNode.hpp"
 #include "SparkFunBME280.h"
@@ -16,11 +16,15 @@ private:
 AirSensor airSensor;
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
+
+    // put your setup code here, to run once:
+  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
+  Log.info(F("main setup"));
+
+  airSensor.setup();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  airSensor.loop();
 }

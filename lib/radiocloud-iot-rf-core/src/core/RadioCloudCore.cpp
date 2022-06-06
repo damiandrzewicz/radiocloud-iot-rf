@@ -20,13 +20,14 @@ void RadioCloudCore::setup()
     readUuidFromEEPROM();
     readRadioConfigFromEEPROM();
     initRadioConfigForPairing();
-    initStateMachine(); 
 }
 
 void RadioCloudCore::loop()
 {
     // StateMachine loop
-    stateMachine_.Update();
+    //Log.noticeln(F("bUpd"));
+    //stateMachine_.Update();
+    //Log.noticeln(F("aUpd"));
 }
 
 

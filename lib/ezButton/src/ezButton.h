@@ -39,32 +39,41 @@
 #define COUNT_BOTH    2
 
 class ezButton
-{
-	private:
-		int btnPin;
-		unsigned long debounceTime;
-		unsigned long count;
-		int countMode;
+{	
+public:	
 
-		int previousSteadyState;  // the previous steady state from the input pin, used to detect pressed and released event
-		int lastSteadyState;      // the last steady state from the input pin
-		int lastFlickerableState; // the last flickerable state from the input pin
+	struct State
+	{
+		enum class Step
+		{
+			Idle,
+			Checking,
+			Ready
+		};
 
-		unsigned long lastDebounceTime; // the last time the output pin was toggled
+		Step step = Step::Idle;
+		bool isPressed = false;
+		unsigned long lastPressTime = 0;
+	};
 
-	public:
-		ezButton(int pin);
-		ezButton(int pin, int mode);
-		void setDebounceTime(unsigned long time);
-		unsigned long getDebounceTime();
-		int getState(void);
-		int getStateRaw(void);
-		bool isPressed(void);
-		bool isReleased(void);
-		void setCountMode(int mode);
-		unsigned long getCount(void);
-		void resetCount(void);
-		void loop(void);
+	ezButton(int pin, int mode = INPUT_PULLUP);
+
+	void setDebounceTime(unsigned long time);
+	unsigned long getDebounceTime();
+	const State &getState() const;
+
+	void check();
+
+private:
+	int btnPin;
+	uint8_t currentStep = 1;
+	unsigned long debounceTime = 0;
+	unsigned long lastDebounceTime = 0;
+	unsigned long lastStablePressTime = 0;
+
+	int previousState;
+
+	State state;
 };
 
 #endif
