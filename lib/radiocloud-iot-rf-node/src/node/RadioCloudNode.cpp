@@ -33,14 +33,10 @@ void RadioCloudNode::setup()
 
 void RadioCloudNode::loop()
 {
-    // StateBtn loop
-    //stateBtn_.loop();
-    //stateBtnPress_ = stateBtnCheck();
-    
     // StateLed loop
     stateLed_.loop();
 
-    loopFSM();
+    fsm_.loop();
 
     RadioCloudCore::loop();
 }
@@ -85,208 +81,153 @@ void RadioCloudNode::postDeepSleep()
 
 void RadioCloudNode::initFSM()
 {
-    fsmState_ = FSM_State::ChekConfig;
+    fsm_.addState(FSM_State::ChekConfig, stateName[FSM_State::ChekConfig], nullptr, [&](const auto &cs){ return onCheckConfig(); }, nullptr);
+    fsm_.addState(FSM_State::RadioSend, stateName[FSM_State::RadioSend], nullptr, [&](const auto &cs){ return onRadioSend(); }, nullptr);
+    fsm_.addState(FSM_State::RadioReceive, stateName[FSM_State::RadioReceive], nullptr, [&](const auto &cs){ return onRadioReceive(); }, nullptr);
+    fsm_.addState(FSM_State::Sleep, stateName[FSM_State::Sleep], nullptr, [&](const auto &cs){ return onSleep(); }, nullptr);
+    fsm_.addState(FSM_State::StateBtnDispatch, stateName[FSM_State::StateBtnDispatch], nullptr, [&](const auto &cs){ return onStateBtnDispatch(); }, nullptr);
+    //fsm_.addState(FSM_State::RadioPair, stateName[FSM_State::RadioPair], nullptr, [&](const auto &cs){ return onCheckConfig(); }, nullptr);
+    //fsm_.addState(FSM_State::FactoryReset, stateName[FSM_State::FactoryReset], nullptr, [&](const auto &cs){ return onCheckConfig(); }, nullptr);
 }
 
-void RadioCloudNode::loopFSM()
-{
-    static auto transition = [&](FSM_State newState){
-        Log.traceln(F("fsm: %s->%s"), 
-            (const char *)pgm_read_word(&stateName[static_cast<int>(fsmState_)]), 
-            (const char *)pgm_read_word(&stateName[static_cast<int>(newState)])
-        );
+// void RadioCloudNode::loopFSM()
+// {
+//     static auto transition = [&](FSM_State newState){
+//         Log.traceln(F("fsm: %s->%s"), 
+//             (const char *)pgm_read_word(&stateName[static_cast<int>(fsmState_)]), 
+//             (const char *)pgm_read_word(&stateName[static_cast<int>(newState)])
+//         );
 
-        fsmState_ = newState;
-    };
-    static auto enterState = [](FSM_State state){
-        Log.traceln(F(">>>%s"), 
-            (const char *)pgm_read_word(&stateName[static_cast<int>(state)])
-        );
-    };
+//         fsmState_ = newState;
+//     };
+//     static auto enterState = [](FSM_State state){
+//         Log.traceln(F(">>>%s"), 
+//             (const char *)pgm_read_word(&stateName[static_cast<int>(state)])
+//         );
+//     };
 
-    static auto leaveState = [](FSM_State state){
-        Log.traceln(F("<<<%s"), 
-            (const char *)pgm_read_word(&stateName[static_cast<int>(state)])
-        );
-    };
+//     static auto leaveState = [](FSM_State state){
+//         Log.traceln(F("<<<%s"), 
+//             (const char *)pgm_read_word(&stateName[static_cast<int>(state)])
+//         );
+//     };
 
+//     auto currentState = fsmState_;
+//     enterState(currentState);
 
-    if(fsmState_ == FSM_State::ChekConfig)
-    {
-        enterState(FSM_State::ChekConfig);
-        auto res = onCheckConfig();
-        if(isStateResultOk(res))
-        {
-            transition(FSM_State::RadioSend);
-        }
-        else if(isStateResultError(res))
-        {
-            transition(FSM_State::Sleep);
-        }
-        leaveState(FSM_State::ChekConfig);
-    }
-    else if(fsmState_ == FSM_State::RadioSend)
-    {
-        enterState(FSM_State::RadioSend);
-        auto res = onRadioSend();
-        if(isStateResultOk(res))
-        {
-            transition(FSM_State::RadioReceive);
-        }
-        else if(isStateResultError(res))
-        {
-            transition(FSM_State::RadioReceive);
-        }
-        leaveState(FSM_State::RadioSend);
-    }
-    else if(fsmState_ == FSM_State::RadioReceive)
-    {
-        enterState(FSM_State::RadioReceive);
-        auto res = onRadioReceive();
-        if(!isStateResultWorking(res))
-        {
-            transition(FSM_State::StateBtnDispatch);
-        }
-        leaveState(FSM_State::RadioReceive);
-    }
-    else if(fsmState_ == FSM_State::Sleep)
-    {
-        enterState(FSM_State::Sleep);
-        
-        auto res = onSleep();
-        if(!isStateResultWorking(res))
-        {
-            transition(FSM_State::ChekConfig);
-        }
-    
+//     if(fsmState_ == FSM_State::ChekConfig)
+//     {
+//         auto res = onCheckConfig();
+//         if(isStateResultOk(res))
+//         {
+//             transition(FSM_State::RadioSend);
+//         }
+//         else if(isStateResultError(res))
+//         {
+//             transition(FSM_State::Sleep);
+//         }
+//     }
+//     else if(fsmState_ == FSM_State::RadioSend)
+//     {
+//         auto res = onRadioSend();
+//         if(isStateResultOk(res))
+//         {
+//             transition(FSM_State::RadioReceive);
+//         }
+//         else if(isStateResultError(res))
+//         {
+//             transition(FSM_State::RadioReceive);
+//         }
+//     }
+//     else if(fsmState_ == FSM_State::RadioReceive)
+//     {
+//         auto res = onRadioReceive();
+//         if(!isStateResultWorking(res))
+//         {
+//             transition(FSM_State::StateBtnDispatch);
+//         }
+//     }
+//     else if(fsmState_ == FSM_State::Sleep)
+//     {
+//         auto res = onSleep();
+//         if(!isStateResultWorking(res))
+//         {
+//             transition(FSM_State::ChekConfig);
+//         }
+//     }
+//     else if(fsmState_ == FSM_State::StateBtnDispatch)
+//     {
+//         static uint8_t step = 1;
 
-        leaveState(FSM_State::Sleep);
-    }
-    else if(fsmState_ == FSM_State::StateBtnDispatch)
-    {
-        enterState(FSM_State::StateBtnDispatch);
-        static uint8_t step = 1;
+//         if(step == 1)
+//         {
+//             onEnterStateBtnDispatch();
+//             ++step;
+//         }
+//         else if(step == 2)
+//         {
+//             const auto &state = stateBtn_.check();
 
-        if(step == 1)
-        {
-            onEnterStateBtnDispatch();
-            ++step;
-        }
-        else if(step == 2)
-        {
-            //onStateBtnDispatch();
-            stateBtn_.check();
-            const auto &state = stateBtn_.getState();
+//             if(state.step == ezButton::State::Step::Idle)
+//             {
+//                 transition(FSM_State::Sleep);
+//             }
+//             else if(state.step == ezButton::State::Step::Ready)
+//             {
+//                 auto pressTime = state.lastPressTime;
+//                 Log.traceln(F("pressTime:%d"), pressTime);
+//                 if(pressTime > StateBtnTimeout::mediumPressTime)
+//                 {
+//                     transition(FSM_State::FactoryReset);
+//                 }
+//                 else if(pressTime > StateBtnTimeout::shortPressTime)
+//                 {
+//                     transition(FSM_State::RadioPair);
+//                 }
+//             }
 
-            if(state.step == ezButton::State::Step::Idle)
-            {
-                transition(FSM_State::Sleep);
-            }
-            else if(state.step == ezButton::State::Step::Ready)
-            {
-                auto pressTime = state.lastPressTime;
-                Log.traceln(F("pressTime:%d"), pressTime);
-                if(pressTime > 6000)
-                {
-                    transition(FSM_State::FactoryReset);
-                }
-                else if(pressTime > 3000)
-                {
-                    transition(FSM_State::RadioPair);
-                }
-            }
+//             // Check if leave 
+//             if(fsmState_ != FSM_State::StateBtnDispatch)
+//             {
+//                 onLeaveStateBtnDispatch();
+//                 step = 1;
+//             }
+//         }
+//     }
+//     else if(fsmState_ == FSM_State::RadioPair)
+//     {
+//         auto res = onRadioPair();
 
-            // Check if leave 
-            if(fsmState_ != FSM_State::StateBtnDispatch)
-            {
-                onLeaveStateBtnDispatch();
-                step = 1;
-            }
-        }
+//         static Delay::DelayNoBlockInfo info;
+//         bool timeout = Delay::delayNoBlock(info, 10000);
 
-
-        leaveState(FSM_State::StateBtnDispatch);
-    }
-    else if(fsmState_ == FSM_State::RadioPair)
-    {
-        enterState(FSM_State::RadioPair);
-        auto res = onRadioPair();
-
-        static Delay::DelayNoBlockInfo info;
-        bool timeout = Delay::delayNoBlock(info, 10000);
-
-        if(timeout || !isStateResultWorking(res))
-        {
-            transition(FSM_State::ChekConfig);
-        }
-        leaveState(FSM_State::RadioPair);
-    }
-    else if(fsmState_ == FSM_State::FactoryReset)
-    {
-        enterState(FSM_State::FactoryReset);
-        auto res = onFactoryReset();
-        if(!isStateResultWorking(res))
-        {
-            transition(FSM_State::ChekConfig);
-        }
-        leaveState(FSM_State::FactoryReset);
-    }
-}
-
-RadioCloudNode::StateBtnPress RadioCloudNode::stateBtnCheck()
-{
-    static constexpr uint16_t shortPressTime = 3000;
-    static constexpr uint16_t mediumPressTime = 10000;
-    static constexpr uint16_t longPressTime = 15000;
-
-    static unsigned long pressedTime = 0;
-    static unsigned long releasedTime = 0;
-
-    StateBtnPress press = StateBtnPress::NoPress;
-
-    // if(stateBtn_.isPressed()){
-    //     pressedTime = millis();
-    //     Log.verboseln(F("pressed: %d"), pressedTime);
-    // }
-    
-    // if(stateBtn_.isReleased()) {
-    //     releasedTime = millis();
-    //     Log.verboseln(F("released: %d"), releasedTime);
-
-    //     press = StateBtnPress::Single;
-    //     long pressDuration = releasedTime - pressedTime;
-
-    //     if( pressDuration >= shortPressTime ){
-    //         press = StateBtnPress::Short;
-    //     }
-
-    //     if( (pressDuration >= mediumPressTime) && (pressDuration < longPressTime) ){
-    //         press = StateBtnPress::Medium;
-    //     }
-
-    //     if( pressDuration >= longPressTime ){
-    //         press = StateBtnPress::Long;
-    //     }
-    // }
-    //Log.verboseln(F("btnMode: %d, pressedTime: %d, releasedTime: %d"), 
-    //   static_cast<uint8_t>(mode), pressedTime, releasedTime);
-
-    //Log.verboseln(F("state: %d"), static_cast<int>(state));
-
-    return press;
-}
+//         if(timeout || !isStateResultWorking(res))
+//         {
+//             transition(FSM_State::ChekConfig);
+//         }
+//     }
+//     else if(fsmState_ == FSM_State::FactoryReset)
+//     {
+//         auto res = onFactoryReset();
+//         if(!isStateResultWorking(res))
+//         {
+//             transition(FSM_State::ChekConfig);
+//         }
+//     }
+//     leaveState(currentState);
+// }
 
 // Action handlers
-FSM::StateResult RadioCloudNode::onCheckConfig()
+int8_t RadioCloudNode::onCheckConfig()
 {
     if(radioConfig_.isEmpty())
     {
         sleepTime_ = 0; // forever
-        return FSM::StateResult::Error;
+        return FSM_State::Sleep;
     }
     else
     {
-        return FSM::StateResult::Ok;
+        return FSM_State::RadioSend;
     }
 }
 
@@ -296,11 +237,11 @@ void RadioCloudNode::onEnterStateBtnDispatch()
     stateLed_.blink(50, 950, 1000);
 }
 
-FSM::StateResult RadioCloudNode::onStateBtnDispatch()
+int8_t RadioCloudNode::onStateBtnDispatch()
 {
     //Log.verboseln(F("onStateBtnDispatch"));
 
-    return FSM::StateResult::Working;
+    return FSM_State::Sleep;
 }
 
 void RadioCloudNode::onLeaveStateBtnDispatch()
@@ -309,26 +250,26 @@ void RadioCloudNode::onLeaveStateBtnDispatch()
     stateLed_.cancel();
 }
 
-FSM::StateResult RadioCloudNode::onRadioSend()
+int8_t RadioCloudNode::onRadioSend()
 {
-    return FSM::StateResult::Ok;
+    return FSM_State::RadioReceive;
 }
 
-FSM::StateResult RadioCloudNode::onRadioReceive()
+int8_t RadioCloudNode::onRadioReceive()
 {
-    return FSM::StateResult::Ok;
+    return FSM_State::StateBtnDispatch;
 }
 
-FSM::StateResult RadioCloudNode::onSleep()
+int8_t RadioCloudNode::onSleep()
 {
     deepSleepForWakeupOnInt(sleepTime_, extInterruptPin_, FALLING);
     //Log.noticeln(F("fale slp"));
    // delay(2000);
-    return FSM::StateResult::Ok;
+    return FSM_State::ChekConfig;
 }
 
 
-FSM::StateResult RadioCloudNode::onRadioPair()
+int8_t RadioCloudNode::onRadioPair()
 {
     // auto currentState = stateMachine_.CurrentState();
     // static auto success = false;
@@ -398,9 +339,11 @@ FSM::StateResult RadioCloudNode::onRadioPair()
     // }
 
     // return res;
+
+    return -1;
 }
 
-FSM::StateResult RadioCloudNode::onFactoryReset()
+int8_t RadioCloudNode::onFactoryReset()
 {   
-    return FSM::StateResult::Ok;
+    return -1;
 }

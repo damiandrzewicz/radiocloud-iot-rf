@@ -34,10 +34,6 @@
 
 #include <Arduino.h>
 
-#define COUNT_FALLING 0
-#define COUNT_RISING  1
-#define COUNT_BOTH    2
-
 class ezButton
 {	
 public:	
@@ -62,7 +58,7 @@ public:
 	unsigned long getDebounceTime();
 	const State &getState() const;
 
-	void check();
+	const State &check();
 
 private:
 	int btnPin;

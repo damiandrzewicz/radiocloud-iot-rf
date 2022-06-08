@@ -53,7 +53,7 @@ const ezButton::State &ezButton::getState() const
 	return state;
 }
 
-void ezButton::check() {
+const ezButton::State &ezButton::check() {
 	
 	int currentState = digitalRead(btnPin);
 	unsigned long currentTime = millis();
@@ -95,7 +95,6 @@ void ezButton::check() {
 				lastStablePressTime = 0;
 				currentStep = 1;
 			}
-			
 		}
 	}
 	else if(currentStep == 3)
@@ -110,4 +109,6 @@ void ezButton::check() {
 			currentStep = 1;
 		}
 	}
+
+	return state;
 }
